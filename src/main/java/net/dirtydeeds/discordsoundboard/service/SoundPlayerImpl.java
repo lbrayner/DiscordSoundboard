@@ -24,6 +24,8 @@ import net.dv8tion.jda.utils.AvatarUtil;
 import net.dv8tion.jda.utils.PermissionUtil;
 import net.dv8tion.jda.utils.SimpleLog;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.TimeUnit;
+import java.lang.InterruptedException;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -67,6 +69,7 @@ public class SoundPlayerImpl implements Observer {
     private float playerVolume = 0.75F;
     private final MainWatch mainWatch;
     private boolean initialized = false;
+    private boolean isFading = false;
     private MusicPlayer musicPlayer;
     private FilePlayer player;
     private String playerSetting;
@@ -142,15 +145,47 @@ public class SoundPlayerImpl implements Observer {
         }
         return returnFiles;
     }
-    
+
     /**
      * Sets volume of the player.
      * @param volume - The volume value to set.
      */
     public void setSoundPlayerVolume(int volume) {
-        playerVolume = (float) volume / 100;
-        if (isMusicPlayer()) {
-            musicPlayer.setVolume(playerVolume);
+	    setSoundPlayerVolume(volume, 1000);
+    }
+    
+    /**
+     * Sets volume of the player.
+     * @param volume - The volume value to set.
+     */
+    public void setSoundPlayerVolume(int volume, int timeout) {
+	    int currentVolume = Math.round(playerVolume * 100);
+        
+        int volumeDiff = currentVolume - volume;
+        if (volumeDiff < 0) {
+	        volumeDiff = volumeDiff * -1;
+        }
+        
+        if (volumeDiff != 0 && isFading == false) {
+	        boolean isFading = true;
+	        int microInterval = Math.round(timeout / volumeDiff);
+	        while (currentVolume != volume) {
+		        if (currentVolume < volume) {
+			        currentVolume++;
+		        } else {
+			        currentVolume--;
+		        }
+				playerVolume = (float) currentVolume / 100;
+		        if (isMusicPlayer()) {
+		            musicPlayer.setVolume(playerVolume);
+		        }
+		        try {
+			        TimeUnit.MILLISECONDS.sleep(microInterval);
+		        } catch (InterruptedException e) {
+			        // mute...
+		        }
+	        }
+	        isFading = false;
         }
     }
 
@@ -363,16 +398,32 @@ public class SoundPlayerImpl implements Observer {
      * @return boolean representing whether playback was stopped.
      */
     public boolean stop() {
+	    return stop(0);
+    }
+
+    /**
+     * Stops sound playback and returns true or false depending on if playback was stopped.
+     * @return boolean representing whether playback was stopped.
+     */
+    public boolean stop(int timeout) {
+	    boolean result = false;
+	    float originalVolume = playerVolume;
+	    
+	    
         if (isMusicPlayer()) {
             if (musicPlayer != null && musicPlayer.isPlaying()) {
+          	    setSoundPlayerVolume(0, timeout);
                 musicPlayer.stop();
+                playerVolume = originalVolume;
                 return true;
             } else {
                 return false;
             }
         } else {
             if (player != null && player.isPlaying()) {
+          	    setSoundPlayerVolume(0, timeout);
                 player.stop();
+                playerVolume = originalVolume;
                 return true;
             } else {
                 return false;
@@ -403,10 +454,12 @@ public class SoundPlayerImpl implements Observer {
     public boolean isUserAllowed(String username) {
         if (allowedUsers == null) {
             return true;
-        } else if (!allowedUsers.isEmpty() && allowedUsers.contains(username)){
+        } else if (allowedUsers.isEmpty()){
+            return true;
+        } else if (allowedUsers.contains(username)){
             return true;
         } else {
-            return true;
+            return false;
         }
     }
 
