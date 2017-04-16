@@ -62,6 +62,9 @@ jar {
     }
     exclude('/src/main/java/**')
     exclude("/src/main/resources/*")
+    from("/src/main/java") {
+        include("logback.xml")
+    }
 }
 
 def distributionsCopySpec = copySpec {

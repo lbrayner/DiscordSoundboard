@@ -58,6 +58,7 @@ public class ChatSoundBoardListener extends ListenerAdapter {
         }
         muted=false;
         this.respondToDms = respondToDms;
+        LOG.setLevel(this.soundPlayer.getLogLevel());
     }
 
     @Override
@@ -79,8 +80,11 @@ public class ChatSoundBoardListener extends ListenerAdapter {
 	                        if (commandString.length() > maxLineLength) {
 	                            replyByPrivateMessage(event, "You have " + soundList.size() + " pages of soundFiles. Reply: ```" + commandCharacter + "list pageNumber``` to request a specific page of results.");
 	                        } else {
-	                            replyByPrivateMessage(event, "Type any of the following into the chat to play the sound:");
-	                            replyByPrivateMessage(event, soundList.get(0));
+	                            replyByPrivateMessage(event, "The full catalog can be found at https://drive.google.com/uc?export=download&id=0B_NNN6sIxejFWE01Sm9LeVRpblk.");
+	                            replyByPrivateMessage(event, "You may want to download the following AutoHotKey script: https://drive.google.com/uc?export=download&id=0B_NNN6sIxejFZVBrNWZBV2V5MW8.");
+	                            replyByPrivateMessage(event, "Download AutoHotKey here: https://www.autohotkey.com/download/ahk.zip.");
+	                            // replyByPrivateMessage(event, "Type any of the following into the chat to play the sound:");
+	                            // replyByPrivateMessage(event, soundList.get(0));
 	                        }
 	                    } else {
 	                        String[] messageSplit = message.split(" ");
@@ -216,13 +220,14 @@ public class ChatSoundBoardListener extends ListenerAdapter {
 		                        // If there is the repeat character (~) then cut up the message string.
 	                            int repeatIndex = message.indexOf('~');
 	                            if (repeatIndex > -1) {
-									fileNameRequested = message.substring(1, repeatIndex - 1); // -1 to ignore the previous space
+									fileNameRequested = message.substring(1, repeatIndex).trim(); // -1 to ignore the previous space
 	                            	if (repeatIndex + 1 == message.length()) { // If there is only a ~ then repeat-infinite
 		                            	repeatNumber = -1;
 	                            	} else { // If there is something after the ~ then repeat for that value
 	                                	repeatNumber = Integer.parseInt(message.substring(repeatIndex + 1, message.length())); // +1 to ignore the ~ character
 	                            	}
 	                            }
+                                // LOG.debug(String.format("%s %d",fileNameRequested,repeatNumber));
 	                            LOG.info("Attempting to play file: " + fileNameRequested + " " + repeatNumber + " times. Requested by " + requestingUser + ".");
 	
 	                            soundPlayer.playFileForEvent(fileNameRequested, event, repeatNumber);

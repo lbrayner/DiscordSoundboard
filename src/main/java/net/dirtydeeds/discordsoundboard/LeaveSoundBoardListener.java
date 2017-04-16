@@ -51,7 +51,7 @@ public class LeaveSoundBoardListener extends ListenerAdapter {
                         LOG.fatal("Could not play file for disconnection of " + userDisconnected);
                     }
                 } else {
-                    LOG.info("Could not disconnection sound for " + userDisconnected + ", so ignoring disconnection event.");
+                    LOG.info("Could not play disconnection sound for " + userDisconnected + ", so ignoring disconnection event.");
                 }
             }
         }
