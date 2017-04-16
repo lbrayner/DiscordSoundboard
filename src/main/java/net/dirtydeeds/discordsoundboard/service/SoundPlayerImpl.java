@@ -26,6 +26,7 @@ import net.dv8tion.jda.utils.SimpleLog;
 import org.springframework.stereotype.Service;
 import java.util.concurrent.TimeUnit;
 import java.lang.InterruptedException;
+import java.util.Collections;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -452,6 +453,7 @@ public class SoundPlayerImpl implements Observer {
     }
 
     public boolean isUserAllowed(String username) {
+        LOG.debug(String.format("allowedUsers: %s. Size: %d.",allowedUsers,allowedUsers.size()));
         if (allowedUsers == null) {
             return true;
         } else if (allowedUsers.isEmpty()){
@@ -847,7 +849,8 @@ public class SoundPlayerImpl implements Observer {
             }
 
             String allowedUsersString = appProperties.getProperty("allowedUsers");
-            if (allowedUsersString != null) {
+            allowedUsers = Collections.emptyList();
+            if (allowedUsersString != null && allowedUsersString.equals("") == false) {
                 String[] allowedUsersArray = allowedUsersString.trim().split(",");
                 if (allowedUsersArray.length > 0) {
                     allowedUsers = Arrays.asList(allowedUsersArray);
