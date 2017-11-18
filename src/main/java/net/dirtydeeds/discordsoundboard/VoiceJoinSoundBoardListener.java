@@ -34,11 +34,12 @@ public class VoiceJoinSoundBoardListener extends ListenerAdapter {
             return;
         }
 
-        if(botName.equals(userName))
-        {
-            LOG.debug("The bot has joined a channel.");
-            return;
-        }
+        if(botName != null)
+            if(botName.equals(userName))
+            {
+                LOG.debug("The bot has joined a channel.");
+                return;
+            }
 
         if(userName.equals(userNameToFollow))
         {
@@ -50,7 +51,6 @@ public class VoiceJoinSoundBoardListener extends ListenerAdapter {
 
         try
         {
-            // this.soundPlayerImpl.playFileForUser(fileName, event.getUser().getUsername());
             this.soundPlayerImpl.playFileForUser(fileName, null);
         }
         catch(SoundPlaybackException e)

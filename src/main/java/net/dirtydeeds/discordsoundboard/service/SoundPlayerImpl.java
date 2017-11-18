@@ -922,9 +922,14 @@ public class SoundPlayerImpl implements Observer {
         }
     }
 
-    public String getProperty(String property)
+    public String getProperty(String key)
     {
-        return this.appProperties.getProperty(property).toString();
+        Object property = this.appProperties.getProperty(key);
+
+        if(property == null)
+            return null;
+
+        return property.toString();
     }
 
     @PreDestroy
