@@ -78,13 +78,13 @@ public class ChatSoundBoardListener extends ListenerAdapter {
 	                    LOG.info("Responding to list command. Requested by " + requestingUser + ".");
 	                    if (message.equals(commandCharacter + "list")) {
 	                        if (commandString.length() > maxLineLength) {
-	                            replyByPrivateMessage(event, "You have " + soundList.size() + " pages of soundFiles. Reply: ```" + commandCharacter + "list pageNumber``` to request a specific page of results.");
+                                replyByPrivateMessage(event, "You have " +
+                                        soundList.size() + " pages of soundFiles. Reply: ```" +
+                                        commandCharacter +
+                                        "list pageNumber``` to request a specific page of results.");
 	                        } else {
-	                            replyByPrivateMessage(event, "The full catalog can be found at https://drive.google.com/uc?export=download&id=0B_NNN6sIxejFWE01Sm9LeVRpblk.");
-	                            replyByPrivateMessage(event, "You may want to download the following AutoHotKey script: https://drive.google.com/uc?export=download&id=0B_NNN6sIxejFZVBrNWZBV2V5MW8.");
-	                            replyByPrivateMessage(event, "Download AutoHotKey here: https://www.autohotkey.com/download/ahk.zip.");
-	                            // replyByPrivateMessage(event, "Type any of the following into the chat to play the sound:");
-	                            // replyByPrivateMessage(event, soundList.get(0));
+	                            replyByPrivateMessage(event, "Type any of the following into the chat to play the sound:");
+	                            replyByPrivateMessage(event, soundList.get(0));
 	                        }
 	                    } else {
 	                        String[] messageSplit = message.split(" ");
@@ -237,7 +237,6 @@ public class ChatSoundBoardListener extends ListenerAdapter {
 	                                	repeatNumber = Integer.parseInt(message.substring(repeatIndex + 1, message.length())); // +1 to ignore the ~ character
 	                            	}
 	                            }
-                                // LOG.debug(String.format("%s %d",fileNameRequested,repeatNumber));
 	                            LOG.info("Attempting to play file: " + fileNameRequested + " " + repeatNumber + " times. Requested by " + requestingUser + ".");
 	
 	                            soundPlayer.playFileForEvent(fileNameRequested, event, repeatNumber);
@@ -312,17 +311,20 @@ public class ChatSoundBoardListener extends ListenerAdapter {
 
         //if text has \n, \r or \t symbols it's better to split by \s+
         final String SPLIT_REGEXP= "(?<=[ \\n])";
+        final String PREFIX = "```\n";
+        final String SUFFIX = "```\n";
+        final int PADDING_LENGTH = PREFIX.length() + SUFFIX.length();
 
         String[] tokens = commandString.toString().split(SPLIT_REGEXP);
         int lineLen = 0;
         StringBuilder output = new StringBuilder();
-        output.append("```\n");
+        output.append(PREFIX);
         for (int i = 0; i < tokens.length; i++) {
             String word = tokens[i];
 
-            if (lineLen + (word).length() > maxLineLength) {
+            if (lineLen + (word).length() + PADDING_LENGTH > maxLineLength) {
                 if (i > 0) {
-                    output.append("```\n");
+                    output.append(SUFFIX);
                     soundFiles.add(output.toString());
 
                     output = new StringBuilder(maxLineLength);
